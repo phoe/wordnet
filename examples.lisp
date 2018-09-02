@@ -89,3 +89,11 @@
               collect string into strings
             finally (format t "~{~A~^~%~}" strings)))
   (values))
+
+(defun wordnet-describe* (word-or-phrase &optional part-of-speech)
+  (if part-of-speech
+      (let ((result (multiple-value-list (%%wordnet-describe word-or-phrase part-of-speech))))
+        (when (car result) (list result)))
+      (loop for part-of-speech in '(:noun :verb :adjective :adverb)
+            for list = (multiple-value-list (%%wordnet-describe word-or-phrase part-of-speech))
+            when (car list) collect list)))
