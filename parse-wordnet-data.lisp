@@ -127,56 +127,24 @@
   (get pointer-type 'pointer-direction))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; tokenizer
-
-(defmacro tokenizing-wordnet-entry ((entry-string &key start end) &body body)
-  (let ((index-var '#:scan-index)
-        (data-var '#:entry-string)
-        (start-var '#:start)
-        (end-var '#:end))
-    `(let* ((,data-var ,entry-string)
-            (,start-var (or ,start 0))
-            (,end-var (or ,end (length ,data-var)))
-            (,index-var ,start-var))
-       (flet ((next-token ()
-                (loop
-                  (when (>= ,index-var ,end-var)
-                    (return-from next-token nil))
-                  (unless (char-equal #\space (aref ,data-var ,index-var))
-                    (return))
-                  (incf ,index-var))
-                (let ((space (or (position #\space ,data-var
-                                           :test #'char-equal
-                                           :start ,index-var)
-                                 ,end-var)))
-                  (when (>= space ,end-var)
-                    (setq space ,end-var))
-                  (prog1 (subseq ,data-var ,index-var space)
-                    (setq ,index-var space)))))
-         ,@body))))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Index file entries
 
 (defun parse-index-file-entry (entry)
   "Given a string as returned by INDEX-ENTRY-FOR-WORD, decode it and return the
 elements of the index entry."
-  ;;(declare (values word part-of-speech poly_cnt pointer-types synset-offsets))
   (when entry
-    (let (word part-of-speech poly_cnt pointer-types synset-offsets)
-      (tokenizing-wordnet-entry
-          (entry)
-        (setq word (next-token))
-        (setq part-of-speech (part-of-speech-for-wordnet-db-token (next-token)))
-        (setq poly_cnt (parse-integer (next-token) :junk-allowed t))
-        (dotimes (i (parse-integer (next-token))
-                    (setq pointer-types (nreverse pointer-types)))
-          (push (next-token) pointer-types))
-        ;;(next-token)
-        (dotimes (i (parse-integer (next-token))
-                    (setq synset-offsets (nreverse synset-offsets)))
-          (push (parse-integer (next-token)) synset-offsets)))
-      (values word part-of-speech poly_cnt pointer-types (cdr synset-offsets)))))
+    (let ((stack (split-sequence:split-sequence #\Space entry :remove-empty-subseqs t))
+          word part-of-speech poly_cnt pointer-types synset-offsets)
+      (setq word (pop stack))
+      (setq part-of-speech (part-of-speech-for-wordnet-db-token (pop stack)))
+      (setq poly_cnt (parse-integer (pop stack) :junk-allowed t))
+      (dotimes (i (parse-integer (pop stack))
+                  (setq pointer-types (nreverse pointer-types)))
+        (push (pop stack) pointer-types))
+      (dotimes (i (parse-integer (prog1 (pop stack) (pop stack)))
+                  (setq synset-offsets (nreverse synset-offsets)))
+        (push (parse-integer (pop stack)) synset-offsets))
+      (values word part-of-speech poly_cnt pointer-types synset-offsets))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Data file entries
@@ -186,42 +154,35 @@ elements of the index entry."
 (defun parse-data-file-entry (entry)
   "Given a string as returned by READ-DATA-FILE-ENTRY, representing a symset,
 return the data."
-  ;;(declare (values part-of-speech words pointers gloss verb-frames))
-  (let* ((gloss-index (position +wordnet-gloss-character+ entry
-                                :test #'string-equal))
-         lex_file_num
-         part-of-speech
-         (words nil)
-         (pointers nil)
-         (verb-frames nil)
-         (gloss (when gloss-index
-                  (string-trim '(#\space) (subseq entry (1+ gloss-index))))))
-    (tokenizing-wordnet-entry
-        (entry :end gloss-index)
-      (next-token)						;file offset check token
-      (setq lex_file_num (next-token))				;decimal integer
-      (setq part-of-speech (part-of-speech-for-wordnet-db-token (next-token)))
-      (dotimes (i (parse-integer (next-token) :radix 16)
-                  (setq words (nreverse words)))
-        (let ((word (next-token))
-              (sense-number (parse-integer (next-token) :radix 16)))
-          (push (list word sense-number) words)))
-      (dotimes (i (parse-integer (next-token))
-                  (setq pointers (nreverse pointers)))
-        (let* ((pointer (decode-pointer-symbol-type (next-token) part-of-speech))
-               (target (parse-integer (next-token)))
-               (part-of-speech (part-of-speech-for-wordnet-db-token (next-token)))
-               (source/target (parse-integer (next-token) :radix 16))
-               (source-index (ldb (byte 8 8) source/target))
-               (target-index (ldb (byte 8 0) source/target)))
-          (push (list pointer target part-of-speech source-index target-index)
-                pointers)))
-      (let ((frame-count (next-token)))
-        (when frame-count
-          (dotimes (i (parse-integer frame-count)
-                      (setq verb-frames (nreverse verb-frames)))
-            (push (list (next-token) (next-token) (next-token)) verb-frames))))
-      (values part-of-speech words pointers gloss verb-frames lex_file_num))))
+  (let* ((gloss-index (position +wordnet-gloss-character+ entry :test #'string-equal))
+         (gloss (when gloss-index (string-trim '(#\space) (subseq entry (1+ gloss-index)))))
+         lex_file_num part-of-speech words pointers verb-frames
+         (stack (split-sequence:split-sequence #\Space entry :remove-empty-subseqs t
+                                                             :end gloss-index)))
+    (pop stack)						;file offset check token
+    (setq lex_file_num (pop stack))				;decimal integer
+    (setq part-of-speech (part-of-speech-for-wordnet-db-token (pop stack)))
+    (dotimes (i (parse-integer (pop stack) :radix 16)
+                (setq words (nreverse words)))
+      (let ((word (pop stack))
+            (sense-number (parse-integer (pop stack) :radix 16)))
+        (push (list word sense-number) words)))
+    (dotimes (i (parse-integer (pop stack))
+                (setq pointers (nreverse pointers)))
+      (let* ((pointer (decode-pointer-symbol-type (pop stack) part-of-speech))
+             (target (parse-integer (pop stack)))
+             (part-of-speech (part-of-speech-for-wordnet-db-token (pop stack)))
+             (source/target (parse-integer (pop stack) :radix 16))
+             (source-index (ldb (byte 8 8) source/target))
+             (target-index (ldb (byte 8 0) source/target)))
+        (push (list pointer target part-of-speech source-index target-index)
+              pointers)))
+    (let ((frame-count (pop stack)))
+      (when frame-count
+        (dotimes (i (parse-integer frame-count)
+                    (setq verb-frames (nreverse verb-frames)))
+          (push (list (pop stack) (pop stack) (pop stack)) verb-frames))))
+    (values part-of-speech words pointers gloss verb-frames lex_file_num)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Exception file entries
@@ -231,19 +192,15 @@ return the data."
     (let* ((length (length entry))
            (index 0)
            (words nil))
-      (flet ((skip-space ()
-               (setq index
-                     (or (position #\space entry :start index :test-not #'char-equal)
-                         length)))
-             (next-space ()
+      (flet ((next-space (entry index length)
                (or (position #\space entry :start index :test #'char-equal)
                    length)))
         (loop
-          (skip-space)
-          (let ((s (next-space)))
+          (setq index (next-space entry index length))
+          (let ((s (next-space entry index length)))
             (when (= s index)
               (return))
             (push (subseq entry index s) words)
             (setq index s))))
-      (setq words (nreverse words) )
+      (setq words (nreverse words))
       (values (cdr words) (first words)))))

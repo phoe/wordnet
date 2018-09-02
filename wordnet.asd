@@ -8,6 +8,7 @@
   :author "Mark Nahabedian"
   :version "0.0.1"
   :serial t
+  :depends-on (#:split-sequence)
   :components ((:file "packages")
                (:file "parts-of-speech")
                (:file "wordnet-database-files")
