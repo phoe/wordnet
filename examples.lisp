@@ -54,8 +54,6 @@
         (let ((c (wn::commonality :hypernym synset like-synset)))
           (when c
             (push c found)))))
-    (sort (pairlis (mapcar #'(lambda (f)
-                               (apply #'+ (mapcar #'cdr (cdr f))))
-                           found)
+    (sort (pairlis (mapcar #'(lambda (f) (apply #'+ (mapcar #'cdr (cdr f)))) found)
                    found)
           #'< :key #'car)))
