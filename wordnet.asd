@@ -14,4 +14,5 @@
                (:file "wordnet-database-files")
                (:file "parse-wordnet-data")
                (:file "representation")
-               (:file "relationship-algorithms")))
+               (:file "relationship-algorithms")
+               (:file "examples")))

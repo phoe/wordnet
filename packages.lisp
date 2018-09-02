@@ -49,6 +49,13 @@
    ;; file "relationship-algorithms"
    #:relation-transitive-closure
    #:commonality
+
+   ;; file "examples"
+   #:synsets-containing-words
+   #:get-synonyms
+   #:get-antonyms
+   #:find-synset-with-sense
+   #:wordnet-describe
    ))
 
 ;; TODO move to wordnet/clim system
