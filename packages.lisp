@@ -56,6 +56,7 @@
    #:get-antonyms
    #:find-synset-with-sense
    #:wordnet-describe
+   #:wordnet-describe*
    ))
 
 ;; TODO move to wordnet/clim system
