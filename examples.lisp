@@ -54,28 +54,35 @@
                    found)
           #'< :key #'car)))
 
-(defun %wordnet-describe (word-or-phrase part-of-speech)
+(defun %%wordnet-describe (word-or-phrase part-of-speech)
   (let* ((word-or-phrase (substitute #\_ #\Space word-or-phrase))
-         (synsets (synsets-containing-words part-of-speech (list word-or-phrase)))
-         (count 0))
+         (synsets (synsets-containing-words part-of-speech (list word-or-phrase))))
+    (when synsets
+      (let* ((glossaries (mapcar (lambda (x) (slot-value x 'gloss)) synsets))
+             (synonyms (remove-duplicates
+                        (mapcar #'car (get-synonyms word-or-phrase part-of-speech))
+                        :test #'string=))
+             (fixed-synonyms (mapcar (lambda (x) (substitute #\Space #\_ x)) synonyms))
+             (fixed-synonyms2 (remove word-or-phrase fixed-synonyms :test #'string=))
+             (antonyms (remove-duplicates (get-antonyms word-or-phrase part-of-speech)
+                                          :test #'string=))
+             (fixed-antonyms (mapcar (lambda (x) (substitute #\Space #\_ x)) antonyms)))
+        (values word-or-phrase part-of-speech glossaries fixed-synonyms2 fixed-antonyms)))))
+
+(defun %wordnet-describe (word-or-phrase part-of-speech)
+  (let* ((count 0))
     (with-output-to-string (*standard-output*)
-      (when synsets
-        (format t "~A (~A)~%" word-or-phrase (string-downcase (string part-of-speech)))
-        (mapc (lambda (x) (format t "~4D. ~A~%" (incf count) (slot-value x 'gloss))) synsets)
-        (let* ((synonyms (remove-duplicates
-                          (mapcar #'car (get-synonyms word-or-phrase part-of-speech))
-                          :test #'string=))
-               (fixed-synonyms (mapcar (lambda (x) (substitute #\Space #\_ x)) synonyms))
-               (fixed-synonyms2 (remove word-or-phrase fixed-synonyms :test #'string=)))
-          (when fixed-synonyms2 (format t "  Synonyms: ~{~A~^, ~}~%" fixed-synonyms2)))
-        (let* ((antonyms (remove-duplicates (get-antonyms word-or-phrase part-of-speech)
-                                            :test #'string=))
-               (fixed-antonyms (mapcar (lambda (x) (substitute #\Space #\_ x)) antonyms)))
-          (when fixed-antonyms (format t "  Antonyms: ~{~A~^, ~}~%" fixed-antonyms)))))))
+      (multiple-value-bind (word-or-phrase part-of-speech glossaries synonyms antonyms)
+          (%%wordnet-describe word-or-phrase part-of-speech)
+        (when word-or-phrase
+          (format t "~A (~A)~%" word-or-phrase (string-downcase (string part-of-speech)))
+          (mapc (lambda (x) (format t "~4D. ~A~%" (incf count) x)) glossaries)
+          (when synonyms (format t "  Synonyms: ~{~A~^, ~}~%" synonyms))
+          (when antonyms (format t "  Antonyms: ~{~A~^, ~}~%" antonyms)))))))
 
 (defun wordnet-describe (word-or-phrase &optional part-of-speech)
   (if part-of-speech
-      (%wordnet-describe word-or-phrase part-of-speech)
+      (format t "~A" (%wordnet-describe word-or-phrase part-of-speech))
       (loop for part-of-speech in '(:noun :verb :adjective :adverb)
             for string = (%wordnet-describe word-or-phrase part-of-speech)
             when (string/= "" string)
