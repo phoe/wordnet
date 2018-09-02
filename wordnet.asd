@@ -4,7 +4,7 @@
 ;;; Massachusetts Institute of Technology
 
 (asdf:defsystem #:WordNet
-  :description "CommonLisp interface to WordNet"
+  :description "Common Lisp interface to WordNet"
   :author "Mark Nahabedian"
   :version "0.0.1"
   :serial t

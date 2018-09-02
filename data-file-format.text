@@ -1,0 +1,377 @@
+(From the manual page "wndb" distributed with the UNIX version of WordNet)
+
+WNDB(5)               WordNet File Formats                WNDB(5)
+WordNet             Last change: 3 March 1995
+
+
+NAME
+     index.noun,  data.noun,  index.verb,  data.verb,  index.adj,
+     data.adj,  index.adv,  data.adv,  verb.Framestext  - WordNet
+     database files (default file names)
+
+     noun.idx, noun.dat, verb.idx,  verb.dat,  adj.idx,  adj.dat,
+     adv.idx, adv.dat, vframes.txt - WordNet database files (PC)
+
+     cousin.tops, cousin.exc - files used by search code to group
+     similar senses
+
+     cousin.tps, cousin.exc - files used by search code to  group
+     similar senses (PC)
+
+     noun.exc, verb.exc. adj.exc adv.exc -  morphology  exception
+     lists
+
+     cntlist - file used to calculate sense numbers based on fre-
+     quency of use in semantically tagged corpora
+
+     (The remainder of this manual page refers to database  files
+     by their default file names.)
+
+DESCRIPTION
+     For  each  syntactic  category,  two  files  are  needed  to
+     represent  the  WordNet  database  - index.pos and data.pos,
+     where pos is noun, verb, adj and adv.
+
+     Each index file is an alphabetized list  of  all  the  words
+     found  in  WordNet  in the corresponding part of speech.  On
+     each line, following the word, is a list of byte offsets  in
+     the  corresponding data file, one for each synset containing
+     the word.  Words in the index file are in lower  case  only,
+     regardless  of  how  they  were entered in the lexicographer
+     files.  This folds various orthographic  representations  of
+     the word into one line enabling database searches to be case
+     insensitive.
+
+     A data file contains information corresponding to  the  syn-
+     sets  that  were  specified in the lexicographer files, with
+     relational pointers resolved to  byte  offsets  in  data.pos
+     files.   Pointers  are  traced  by moving from one synset to
+     another via their byte offsets.   Information  in  the  data
+     files represents all of the word senses in the WordNet data-
+     base.  The word, id, and lex_file_num fields from  a  synset
+     together uniquely identify each word sense in WordNet.
+
+     The exception list files, pos.exc, are used to help the mor-
+     phological  processor find base forms from irregular inflec-
+     tions.
+
+     The  files  cousin.tops  and  cousin.exc  are  used  by  the
+     searching  software  to  display  similar  senses  of a word
+     together.
+
+     The text of the verb frames and  their  corresponding  frame
+     numbers  is provided in a machine readable file, however the
+     file is not used by any software in the WordNet system.
+
+     The various database files are in formats  that  are  easily
+     human  and  machine  readable.   The WordNet system provides
+     command line and window-based interfaces  to  the  database.
+     All of the interfaces to WordNet utilize a common library of
+     search and morphology code.  The database files and  library
+     functions  are  accessible  to those who wish to write their
+     own applications.  See wnintro(3WN) for an overview  of  the
+     WordNet library.
+
+     See wngloss(7WN) for a glossary of WordNet terminology and a
+     discussion  of  the database's content and logical organiza-
+     tion.
+
+  Index File Format
+     Each index file begins with several lines containing a copy-
+     right  notice,  version  number and license agreement. These
+     lines all begin with two spaces and the line number so  they
+     do  not  interfere  with the binary search algorithm that is
+     used to look up entries in the index files.  Items  enclosed
+     in square brackets may not be present.  Fields are separated
+     by one space.
+
+          word  pos  poly_cnt  p_cnt  [ptr_types]  sns_cnt  synset_offset  [synset_offset...]
+
+     word           ASCII text of word (lower case only).
+
+     pos            Part of speech: n for noun files, v for  verb
+                    files,  a  for  adjective files, r for adverb
+                    files.
+
+     poly_cnt       Decimal number of different senses (polysemy)
+                    word  has  in  a machine-readable dictionary.
+                    Note that this is NOT  the  number  of  sense
+                    that word has in WordNet.
+
+     p_cnt          Decimal number of different types of pointers
+                    word has in all synsets containing word.
+
+     ptr_types      A space separated  list  of  p_cnt  different
+                    types  of  pointers that word has in all syn-
+                    sets containing word. See wninput(5WN) for  a
+                    list  of  pointer  symbols.  If a word has no
+                    pointers, this field is omitted and p_cnt  is
+                    0.
+
+     sns_cnt        Decimal number  of  synsets  that  this  word
+                    appears  in.  This is the number of senses of
+                    the word in WordNet.
+
+     synset_offset  A list  of  one  or  more  indices  into  the
+                    corresponding  data.pos  file,  one  for each
+                    occurrence   of    word    in    a    synset.
+                    synset_offset is an 8 digit, right justified,
+                    zero-filled decimal  integer  indicating  the
+                    byte  offset of the synset in the correspond-
+                    ing data.pos  file,  and  can  be  used  with
+                    fseek(3) to read a synset from the data file.
+
+  Data File Format
+     Each data file begins with several lines containing a  copy-
+     right  notice,  version number and license agreement.  These
+     lines all begin with two spaces and the line  number.   This
+     information  is followed by a list (one per line) of all the
+     input files that were included when grind(1WN) was  used  to
+     build the database.
+
+     Each data line of a data file contains the following fields.
+     Items enclosed in square brackets may not be present. Fields
+     are separated by one space.  All integer fields are of fixed
+     length and are right justified and zero-filled.
+
+     synset_offset  lex_file_num  pos  w_cnt  word  id  [word  id...]  p_cnt  [ptr...]  [f_cnt]  [frame...]  [gloss]
+
+
+     synset_offset  Current   byte   offset    in    the    file.
+                    synset_offset  is an 8 digit decimal integer.
+                    It can also be used  as  a  key  to  uniquely
+                    identify a synset in an application such as a
+                    relational database or Prolog.
+
+     lex_file_num   Two digit decimal  integer  corresponding  to
+                    the  lexicographer  file  name containing the
+                    synset.  See lexnames(5WN) for  the  list  of
+                    filenames and their corresponding numbers.
+
+     pos            n for noun synsets, v for verb synset, a  for
+                    adjective  cluster head synsets, s for adjec-
+                    tive satellite synsets, r for adverb synsets.
+
+     w_cnt          Two digit hexadecimal integer indicating  the
+                    number of words in the synset.
+
+     word           ASCII form of a word as entered in the synset
+                    by  the  lexicographer.  The text of the word
+                    is case sensitive, in contrast with its  form
+                    in  the  corresponding  index.pos file, which
+                    contains only lower-case forms.  In data.adj,
+                    a word is immediately followed by a syntactic
+                    marker if one was specified in the lexicogra-
+                    pher  file.   A syntactic marker is appended,
+                    in parentheses, onto word without any  inter-
+                    vening  spaces.   See wninput(5WN) for a list
+                    of syntactic markers for adjectives.
+
+     id             One  digit  hexadecimal  integer  that,  when
+                    appended  onto  word, uniquely identifies the
+                    sense within a lexicographer file.   Non-zero
+                    values  are  inserted by the lexicographer as
+                    additional senses of the word  are  added  to
+                    the  same  file.  If no id is assigned by the
+                    lexicographer 0 is used.
+
+     p_cnt          Three digit decimal  integer  indicating  the
+                    number of pointers from the synset.
+
+     ptr            A list of pointers from the synset.  ptr is a
+                    pointer  symbol  followed  by  a  space,  the
+                    synset_offset of the target synset,  followed
+                    by a space, a part-of-speech character (n, v,
+                    a,  r)   indicating   which   data.pos   file
+                    synset_offset  indexes  into,  followed  by a
+                    space and a four digit source/target field.
+
+                    The  first  two  hexadecimal  digits  of  the
+                    source/target  field  indicate  which word in
+                    the synset the pointer is from.  If the value
+                    is  00,  the pointer is from all of the words
+                    in the source synset.  The second two hexade-
+                    cimal  digits indicate which word in the tar-
+                    get synset the pointer is to.  If  the  value
+                    is  00, the pointer is to all of the words in
+                    the  target  synset.    Words   numbers   are
+                    assigned  by numbering the word fields in the
+                    synset, from left to right, beginning with 1.
+                    Non-zero  values  indicate  lexical  pointers
+                    between specific  words  in  synsets,  rather
+                    than semantic pointers for which the relation
+                    holds between entire synsets.
+
+                    See wninput(5WN) for a lists of pointer  sym-
+                    bols,  and semantic and lexical pointer clas-
+                    sifications.
+
+     f_cnt          Two  digit  decimal  integer  indicating  the
+                    number  of  verb  frames in the synset.  This
+                    field is present only in verb files.
+
+     frame          In the verb file only, a list of  verb  frame
+                    numbers  for  the  words in the synset.  Each
+                    verb frame is represented by a +, followed by
+                    a  space,  followed  by  a  two digit decimal
+                    integer indicating  the  verb  frame  number.
+                    This  is  followed by a space and a two digit
+                    hexadecimal integer indicating  the  word  in
+                    the  synset  the  verb  frame applies to.  As
+                    with pointers, if  this  number  is  00,  the
+                    frame number applies to all words in the syn-
+                    set.  If non-zero, word numbers are  assigned
+                    as  above.   See wninput(5WN) for the text of
+                    the verb frames.
+
+     gloss          Each synset may  optionally  have  a  textual
+                    gloss.   A gloss is a vertical pipe (|), fol-
+                    lowed by a text string.  The gloss  continues
+                    until  the  line  termination is indicated by
+                    two spaces and an end of line.  The gloss may
+                    contain a definition, an example sentence, or
+                    both.
+
+  Sense Numbers
+     Senses are generally ordered from most to  least  frequently
+     used,  with  the  most common sense numbered 1.  Senses that
+     have occurred in corpora that have been semantically  tagged
+     determine the frequency of the senses.  Senses that have not
+     occurred are presented in haphazard order.  At this time, no
+     indication  is  given  in  the  database  as  to which sense
+     numbers are based on semantic tag frequency counts and which
+     are haphazard.
+
+     The result of the sense ordering is  determined  by  reading
+     the  synset_offset  fields  of  a line in an index file from
+     left to right, and assigning sense numbers  to  the  offsets
+     beginning  with 1.  When a synset is read from a correspond-
+     ing data file,  the  sense  of  the  word  is  assigned  the
+     synset_offset sense number from the index file.
+
+     The cntlist file provided with  the  database  contains  one
+     line for each sense that has been tagged in the corpora.  If
+     it is necessary to determine whether a sense number is based
+     on  frequency  counts or not, a check can be made in cntlist
+     for the sense.  If the sense is present, the sense number is
+     based  on  frequency data.  See cntlist(5WN) for information
+     on the format of the cntlist file.
+
+  Format of Sense Grouping Files
+     The default display for WordNet searches is to  show  senses
+     in  order  of  frequency  of  use  in corpora that have been
+     semantically tagged.  The grouped  search  displays  similar
+     senses of a word together.
+
+     Two files are used by the grouping algorithm of the  WordNet
+     search  code.   cousin.tops  is  a  list  of  pairs  of byte
+     offsets, each pair representing a set of top nodes  for  the
+     cousin  grouping  relation.   Each  line  contains a pair of
+     space separated synset_offsets.
+
+     Each candidate for grouping has been  checked  by  hand  and
+     exceptions  are listed in cousin.exc.  Each line contains at
+     least two space separated synset_offsets, with  the  one  of
+     lower  numerical  value coming first.  If additional offsets
+     are present, they are all of greater  numerical  value  than
+     the  first  field.   Offsets  occurring  on  the  same  line
+     represent synsets containing different senses of a word that
+     should  not  be grouped together.  Note that although excep-
+     tions can exists for all three grouping relations, the  file
+     is named cousin.exc.
+
+     See groups(7WN) for more information on grouping senses.
+
+  Exception List File Format
+     Exception lists are alphabetized lists of inflected and base
+     forms  of  words.   The  first  field  of  each  line  is an
+     inflected form, followed by a space separated list of one or
+     more  base  forms  of the word.  There is one exception list
+     for each syntactic category.
+
+     Note that the exception  lists  (except  for  adj.exc)  were
+     culled  from a machine-readable dictionary, and contain many
+     words that are not  in  WordNet.   Also,  for  many  of  the
+     inflected  forms,  base  forms could be easily derived using
+     the standard rules of  detachment  programmed  into  Morphy.
+     These  anomalies are allowed to remain in the exception list
+     files, as they do no harm.
+
+ENVIRONMENT VARIABLES
+     WNSEARCHDIR         Directory in which the WordNet  database
+                         has  been  installed.   Unix  default is
+                         /usr/local/wordnet/dict, PC  default  is
+                         c:\wordnet\dict,  Macintosh  default  is
+                         :Database.
+
+FILES
+     $WNSEARCHDIR/index.*               database   index    files
+                                        (Unix and Macintosh)
+
+     $WNSEARCHDIR/*.idx                 database index files (PC)
+
+     $WNSEARCHDIR/data.*                database data files (Unix
+                                        and Macintosh)
+
+     $WNSEARCHDIR/*.dat                 database data files (PC)
+
+     $WNSEARCHDIR/cousin.*              files   used   to   group
+                                        similar senses
+
+     $WNSEARCHDIR/verb.Framestext       text of verb frames (Unix
+                                        and Macintosh)
+
+     $WNSEARCHDIR/vframes.txt           text of verb frames (PC)
+
+     $WNSEARCHDIR/*.exc                 morphology      exception
+                                        lists
+
+     $WNSEARCHDIR/cntlist               number  of   times   each
+                                        sense is tagged
+
+SEE ALSO
+     wn(1WN),     grind(1WN),     wnintro(3WN),     cntlist(5WN),
+     lexnames(5WN), wninput(5WN), groups(7WN), wngloss(7WN).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+WordNet             Last change: 3 March 1995                   7
+
+
+
