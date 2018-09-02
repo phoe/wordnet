@@ -6,27 +6,27 @@
 
 Princeton maintains a server by which the WordNet database can be [browsed](http://www.cogsci.princeton.edu/~wn/w3wn.html) via the World Wide Web.
 
-The WordNet database is implemented as a set of [text files](data-file-format.text). [Mark Nahabedian](http://www.ai.mit.edu/people/naha/naha.html) (naha@mit.edu) has developed an interface to this database written in [CommonLisp](http://www.cs.cmu.edu:8001/Web/Groups/AI/html/cltl/cltl2.html). This software provides an interface by which CommonLisp programs can access lexicgraphic data from WordNet.
+The WordNet database is implemented as a set of [text files](data-file-format.text). [Mark Nahabedian](http://www.ai.mit.edu/people/naha/naha.html) (naha@mit.edu) has developed an interface to this database written in [Common Lisp](http://www.cs.cmu.edu:8001/Web/Groups/AI/html/cltl/cltl2.html). This software provides an interface by which Common Lisp programs can access lexicgraphic data from WordNet.
 
-## CommonLisp Interface
+## Common Lisp Interface
 
 The interface is written in several layers:
 
-*   [a base layer](#base-layer)
+*   [a base layer](#the-base-layer)
 *   [record extraction](#record-extraction)
 *   [record parsing](#record-parsing)
 *   [data representation](#data-representation)
-*   [pointer reasoning](#relation-hacking)
+*   [pointer reasoning](#pointer-reasoning)
 
 There is also a simple [browser](#browser) implemented in [CLIM](ftp://ftp.digitool.com/pub/clim/papers/) for navigating the WordNet database.
 
-This software represents parts of speech as lisp keyword symbols: **:noun**, **:verb**, **:adjective** and **:adverb**.
+This software represents parts of speech as lisp keyword symbols: `:noun`, `:verb`, `:adjective` and `:adverb`.
 
-The current version of this software only knows how to find WordNet index and data files as they are named in the UNIX implementation of WordNet. Set the value of the parameter **wn::+wordnet-database-directory+** in the file "wordnet-database-files.lisp" to the pathname of the directory where these files can be found.
+~~The current version of this software only knows how to find WordNet index and data files as they are named in the UNIX implementation of WordNet. Set the value of the parameter `wn::+wordnet-database-directory+` in the file `wordnet-database-files.lisp` to the pathname of the directory where these files can be found.~~ This software bundles WordNet database version 3.1.
 
-The current version has only been tested with Symbolics Genera and [Macintosh CommonLisp](http://www.digitool.com/) (thanks to Andrew Blumberg, blumberg@ai.mit.edu). The software might require slight modification to run on other Lisp Implementations.
+~~The current version has only been tested with Symbolics Genera and [Macintosh Common Lisp](http://www.digitool.com/) (thanks to Andrew Blumberg, blumberg@ai.mit.edu). The software might require slight modification to run on other Lisp Implementations.~~ The current version has been modified and tested on SBCL x64 on Linux. It should work on other implementations without further modifications.
 
-All the files can be found [here](ftp://ftp.ai.mit.edu/pub/users/naha/WordNet). A single file in UNIX [tar](ftp://ftp.ai.mit.edu/pub/users/naha/WordNet/everything.tar) format is also available.
+All the files from the original repository can be found at `ftp://ftp.ai.mit.edu/pub/users/naha/WordNet`. A single file in UNIX tar format is also available at `ftp://ftp.ai.mit.edu/pub/users/naha/WordNet/everything.tar`.`
 
 ### The Base Layer
 
