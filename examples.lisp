@@ -67,7 +67,8 @@
              (antonyms (remove-duplicates (get-antonyms word-or-phrase part-of-speech)
                                           :test #'string=))
              (fixed-antonyms (mapcar (lambda (x) (substitute #\Space #\_ x)) antonyms)))
-        (values word-or-phrase part-of-speech glossaries fixed-synonyms2 fixed-antonyms)))))
+        (values (substitute #\Space #\_ word-or-phrase)
+                part-of-speech glossaries fixed-synonyms2 fixed-antonyms)))))
 
 (defun %wordnet-describe (word-or-phrase part-of-speech)
   (let* ((count 0))
