@@ -7,7 +7,7 @@
   :description "Common Lisp interface to WordNet"
   :author "Mark Nahabedian"
   :version "0.0.1"
-  :license "MIT"
+  :license "MIT + WordNet"
   :serial t
   :depends-on (#:split-sequence)
   :components ((:file "packages")
