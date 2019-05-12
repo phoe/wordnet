@@ -23,8 +23,8 @@
 (defun get-synonyms (words part-of-speech)
   (reduce #'union
           (mapcar #'synset-words
-                  (synsets-containing-words part-of-speech
-                                            (if (listp words) words (list words))))
+                  (synsets-containing-word/s (if (listp words) words (list words))
+					    part-of-speech))
           :initial-value nil))
 
 (defun get-antonyms (word part-of-speech)
@@ -58,7 +58,7 @@
 
 (defun %%wordnet-describe (word-or-phrase part-of-speech)
   (let* ((word-or-phrase (substitute #\_ #\Space word-or-phrase))
-         (synsets (synsets-containing-words part-of-speech (list word-or-phrase))))
+         (synsets (synsets-containing-word/s (list word-or-phrase) part-of-speech)))
     (when synsets
       (let* ((glossaries (mapcar (lambda (x) (slot-value x 'gloss)) synsets))
              (synonyms (remove-duplicates
