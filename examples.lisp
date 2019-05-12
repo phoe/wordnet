@@ -12,15 +12,21 @@
     states))
 |#
 
-(defun synsets-containing-word/s (word/s part-of-speech)
+(defun synsets-containing-word/s (word/s &optional (part-of-speech :any))
   "Returns a list of synsets containing the (or all of the) words in word/s."
   (let ((words (if (listp word/s) word/s (list word/s))))
     (reduce #'intersection
 	    (mapcar #'(lambda (word)
-			(index-entry-synsets (cached-index-lookup word part-of-speech)))
+			(if (equal part-of-speech :any)
+			    (apply #'append
+				   (list (index-entry-synsets (cached-index-lookup word :noun))
+					 (index-entry-synsets (cached-index-lookup word :verb))
+					 (index-entry-synsets (cached-index-lookup word :adjective))
+					 (index-entry-synsets (cached-index-lookup word :adverb))))
+			  (index-entry-synsets (cached-index-lookup word part-of-speech))))
 		    words))))
 
-(defun get-synonyms (words part-of-speech)
+(defun get-synonyms (words &optional (part-of-speech :any))
   (reduce #'union
           (mapcar #'synset-words
                   (synsets-containing-word/s (if (listp words) words (list words))
