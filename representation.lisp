@@ -65,19 +65,21 @@
           (parts-of-speech)))
 
 (defun cached-index-lookup (word part-of-speech)
+  "Looks up the entries for word (a string or a symbol) for the specified 
+part-of-speech."
   (let* ((table (second (assoc part-of-speech *wordnet-index-cache*)))
-         (index-cache-entry (gethash word table)))
+	 (index-cache-entry (gethash word table)))
     (unless index-cache-entry
       (multiple-value-bind (word part-of-speech poly_cnt pointer-types synset-offsets)
-          (parse-index-file-entry
-           (index-entry-for-word part-of-speech word))
-        (declare (ignore poly_cnt pointer-types))
-        (when word
-          (setq index-cache-entry (make-instance 'wordnet-index-entry
-                                                 :word word
-                                                 :part-of-speech part-of-speech
-                                                 :synset-offsets synset-offsets))
-          (setf (gethash word table) index-cache-entry))))
+	  (parse-index-file-entry
+	   (index-entry-for-word part-of-speech word))
+	(declare (ignore poly_cnt pointer-types))
+	(when word
+	  (setq index-cache-entry (make-instance 'wordnet-index-entry
+						 :word word
+						 :part-of-speech part-of-speech
+						 :synset-offsets synset-offsets))
+	  (setf (gethash word table) index-cache-entry))))
     index-cache-entry))
 
 (defun cached-data-lookup (synset-index part-of-speech)
