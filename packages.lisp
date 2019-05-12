@@ -51,7 +51,7 @@
    #:commonality
 
    ;; file "examples"
-   #:synsets-containing-words
+   #:synsets-containing-word/s
    #:get-synonyms
    #:get-antonyms
    #:find-synset-with-sense

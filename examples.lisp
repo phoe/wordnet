@@ -12,11 +12,13 @@
     states))
 |#
 
-(defun synsets-containing-words (part-of-speech words)
-  (reduce #'intersection
-          (mapcar #'(lambda (word)
-                      (index-entry-synsets (cached-index-lookup word part-of-speech)))
-                  words)))
+(defun synsets-containing-word/s (word/s part-of-speech)
+  "Returns a list of synsets containing the (or all of the) words in word/s."
+  (let ((words (if (listp word/s) word/s (list word/s))))
+    (reduce #'intersection
+	    (mapcar #'(lambda (word)
+			(index-entry-synsets (cached-index-lookup word part-of-speech)))
+		    words))))
 
 (defun get-synonyms (words part-of-speech)
   (reduce #'union
