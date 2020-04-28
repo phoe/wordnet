@@ -12,17 +12,25 @@
     states))
 |#
 
-(defun synsets-containing-words (part-of-speech words)
-  (reduce #'intersection
-          (mapcar #'(lambda (word)
-                      (index-entry-synsets (cached-index-lookup word part-of-speech)))
-                  words)))
+(defun synsets-containing-word/s (word/s &optional (part-of-speech :any))
+  "Returns a list of synsets containing the (or all of the) words in word/s."
+  (let ((words (if (listp word/s) word/s (list word/s))))
+    (reduce #'intersection
+	    (mapcar #'(lambda (word)
+			(if (equal part-of-speech :any)
+			    (apply #'append
+				   (list (index-entry-synsets (cached-index-lookup word :noun))
+					 (index-entry-synsets (cached-index-lookup word :verb))
+					 (index-entry-synsets (cached-index-lookup word :adjective))
+					 (index-entry-synsets (cached-index-lookup word :adverb))))
+			  (index-entry-synsets (cached-index-lookup word part-of-speech))))
+		    words))))
 
-(defun get-synonyms (words part-of-speech)
+(defun get-synonyms (words &optional (part-of-speech :any))
   (reduce #'union
           (mapcar #'synset-words
-                  (synsets-containing-words part-of-speech
-                                            (if (listp words) words (list words))))
+                  (synsets-containing-word/s (if (listp words) words (list words))
+					    part-of-speech))
           :initial-value nil))
 
 (defun get-antonyms (word part-of-speech)
@@ -56,7 +64,7 @@
 
 (defun %%wordnet-describe (word-or-phrase part-of-speech)
   (let* ((word-or-phrase (substitute #\_ #\Space word-or-phrase))
-         (synsets (synsets-containing-words part-of-speech (list word-or-phrase))))
+         (synsets (synsets-containing-word/s (list word-or-phrase) part-of-speech)))
     (when synsets
       (let* ((glossaries (mapcar (lambda (x) (slot-value x 'gloss)) synsets))
              (synonyms (remove-duplicates
