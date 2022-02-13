@@ -5,7 +5,7 @@
 
 Princeton maintains a server by which the WordNet database can be [browsed](http://www.cogsci.princeton.edu/~wn/w3wn.html) via the World Wide Web.
 
-The WordNet database is implemented as a set of [text files](data-file-format.text). [Mark Nahabedian](http://www.ai.mit.edu/people/naha/naha.html) (naha@mit.edu) has developed an interface to this database written in [Common Lisp](http://www.cs.cmu.edu:8001/Web/Groups/AI/html/cltl/cltl2.html). This software provides an interface by which Common Lisp programs can access lexicgraphic data from WordNet.
+The WordNet database is implemented as a set of [text files](data-file-format.text). [Mark Nahabedian](http://www.ai.mit.edu/people/naha/naha.html) (naha@mit.edu) has developed an interface to this database written in [Common Lisp](http://www.cs.cmu.edu:8001/Web/Groups/AI/html/cltl/cltl2.html). This software provides an interface by which Common Lisp programs can access lexicographic data from WordNet.
 
 ## 2 Min Overview
 
