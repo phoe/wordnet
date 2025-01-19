@@ -1,11 +1,11 @@
 
 ## Background and Introduction
 
-[Professor George Miller](http://www.cogsci.princeton.edu/~geo/) of the [Cognitive Science Laboratory](http://www.cogsci.princeton.edu/) of [Princeton University](http://www.princeton.edu/) directed the development a lexicographic database called [WordNet](http://clarity.princeton.edu:80/~wn/).
+[Professor George Miller](https://en.wikipedia.org/wiki/George_Armitage_Miller) of the [Cognitive Science Laboratory](http://cogsci.princeton.edu/) of [Princeton University](http://www.princeton.edu/) directed the development a lexicographic database called [WordNet](https://wordnet.princeton.edu/).
 
-Princeton maintains a server by which the WordNet database can be [browsed](http://www.cogsci.princeton.edu/~wn/w3wn.html) via the World Wide Web.
+Princeton maintained a server through which the WordNet database could be browsed via the World Wide Web, however, the online version of WordNet has been deprecated and is no longer available, so if you would like to use WordNet in your research, you can [download](https://wordnet.princeton.edu/download) the database.
 
-The WordNet database is implemented as a set of [text files](data-file-format.text). [Mark Nahabedian](http://www.ai.mit.edu/people/naha/naha.html) (naha@mit.edu) has developed an interface to this database written in [Common Lisp](http://www.cs.cmu.edu:8001/Web/Groups/AI/html/cltl/cltl2.html). This software provides an interface by which Common Lisp programs can access lexicographic data from WordNet.
+The WordNet database is implemented as a set of [text files](data-file-format.text). [Mark Nahabedian](https://www.linkedin.com/in/mark-nahabedian-15a225/) has developed an interface to this database written in [Common Lisp](https://www.cs.cmu.edu/Groups/AI/html/cltl/cltl2.html). This software provides an interface by which Common Lisp programs can access lexicographic data from WordNet.
 
 ## 2 Min Overview
 
