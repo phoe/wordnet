@@ -108,6 +108,7 @@
   (define-wordnet-pointer-symbol ";u" :adjective :domain-of-synset-usage)
 
   (define-wordnet-pointer-symbol "!" :adverb :antonym)
+  (define-wordnet-pointer-symbol "+" :adverb :derivationally-related-form)
   (define-wordnet-pointer-symbol "\\" :adverb :derived-from)
   (define-wordnet-pointer-symbol ";c" :adverb :domain-of-synset-topic)
   (define-wordnet-pointer-symbol ";r" :adverb :domain-of-synset-region)
